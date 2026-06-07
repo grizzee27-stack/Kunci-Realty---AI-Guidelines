@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Guidelines · Aerial &amp; Architectural Prompt Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#081230;
+    --navy2:#0c1c44;
+    --panel:#0f2150;
+    --panel2:#13285e;
+    --line:#1d3a78;
+    --line2:#27498f;
+    --ink:#eaf1ff;
+    --ink-dim:#a9bce4;
+    --ink-faint:#6f87bd;
+    --yellow:#ffd23f;
+    --yellow-deep:#f5b800;
+    --cyan:#37d6f0;
+    --cyan-deep:#16a9c9;
+    --mono:'IBM Plex Mono',monospace;
+    --nav-w:264px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--navy);
+    color:var(--ink);
+    font-family:'Archivo',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* blueprint grid + glows */
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(55,214,240,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(55,214,240,.05) 1px,transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(900px 700px at 70% 0%,#000 40%,transparent 100%)}
+  body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(800px 500px at 90% -5%,rgba(255,210,63,.10),transparent 60%),
+      radial-gradient(700px 500px at 5% 100%,rgba(55,214,240,.10),transparent 60%)}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{position:relative;z-index:2;display:grid;grid-template-columns:var(--nav-w) 1fr;min-height:100vh}
+  nav.side{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(8,18,48,.96),rgba(8,18,48,.88));backdrop-filter:blur(6px);padding:26px 18px 40px}
+  .brandmark{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .brandmark .sq{width:26px;height:26px;border:2px solid var(--yellow);position:relative;flex-shrink:0}
+  .brandmark .sq::after{content:"";position:absolute;inset:5px;background:var(--cyan)}
+  .brandmark .bt{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:.02em;line-height:1.05}
+  .brandmark .bt em{color:var(--yellow);font-style:normal}
+  .navsub{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);margin:14px 0 12px}
+  .navlist a{display:flex;gap:10px;align-items:baseline;padding:7px 9px;border-radius:7px;color:var(--ink-dim);text-decoration:none;font-size:13px;transition:.15s;border:1px solid transparent}
+  .navlist a:hover{background:var(--panel);color:var(--ink);border-color:var(--line)}
+  .navlist a.active{background:var(--panel2);color:var(--ink);border-color:var(--line2)}
+  .navlist a .nn{font-family:var(--mono);font-size:11px;color:var(--yellow);min-width:20px;font-weight:600}
+  .navlist a.active .nn{color:var(--cyan)}
+
+  main{min-width:0;padding:0 0 90px}
+  .inner{max-width:920px;margin:0 auto;padding:0 34px}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:64px 0 38px;border-bottom:1px solid var(--line);margin-bottom:8px}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--cyan);margin-bottom:18px;display:flex;align-items:center;gap:12px}
+  .kicker::before{content:"";width:34px;height:1px;background:var(--cyan)}
+  h1.title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(32px,5.4vw,58px);line-height:1.0;letter-spacing:-.01em}
+  h1.title .y{color:var(--yellow)}
+  h1.title .c{color:var(--cyan)}
+  .lede{margin-top:20px;max-width:640px;color:var(--ink-dim);font-size:15.5px}
+  .herometa{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+  .hm{border:1px solid var(--line);border-left:3px solid var(--yellow);background:var(--panel);padding:11px 15px;border-radius:0 10px 10px 0}
+  .hm .v{font-family:'Syne',sans-serif;font-weight:700;font-size:18px}
+  .hm .l{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:2px}
+
+  /* ---------- SEARCH ---------- */
+  .searchwrap{position:sticky;top:0;z-index:30;padding:16px 0;background:linear-gradient(var(--navy) 72%,transparent)}
+  .search{position:relative;max-width:920px;margin:0 auto}
+  .search input{width:100%;background:var(--panel);border:1px solid var(--line2);color:var(--ink);
+    font-family:var(--mono);font-size:13.5px;padding:13px 16px 13px 42px;border-radius:11px;outline:none;transition:.2s}
+  .search input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(55,214,240,.16)}
+  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--ink-faint)}
+  .search .cnt{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+
+  /* ---------- SECTIONS ---------- */
+  section.block{padding:40px 0 8px;scroll-margin-top:74px}
+  .shead{display:flex;align-items:flex-start;gap:18px;margin-bottom:14px}
+  .snum{font-family:'Syne',sans-serif;font-weight:800;font-size:46px;line-height:.8;color:var(--yellow);opacity:.95;flex-shrink:0;width:62px}
+  .stitle h2{font-family:'Syne',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.01em}
+  .stitle .sdesc{margin-top:7px;color:var(--ink-dim);font-size:14.5px;max-width:640px}
+  .srule{height:1px;background:linear-gradient(90deg,var(--line2),transparent);margin:6px 0 22px 80px}
+
+  /* ---------- GUIDELINE CARDS ---------- */
+  .gl{margin-left:80px;display:grid;gap:14px}
+  .glcard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px 20px}
+  .glcard h4{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--cyan);margin-bottom:8px;letter-spacing:.01em}
+  .glcard p{color:var(--ink-dim);font-size:14px}
+  .glcard ul{list-style:none;margin-top:8px}
+  .glcard li{color:var(--ink-dim);font-size:13.5px;padding:4px 0 4px 20px;position:relative}
+  .glcard li::before{content:"";position:absolute;left:0;top:12px;width:8px;height:8px;background:var(--yellow);transform:rotate(45deg)}
+  .glcard code{font-family:var(--mono);font-size:12.5px;background:var(--navy2);border:1px solid var(--line);padding:2px 7px;border-radius:5px;color:var(--yellow)}
+  .tokens{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .tok{font-family:var(--mono);font-size:12px;background:var(--navy2);border:1px solid var(--line2);padding:6px 11px;border-radius:7px;color:var(--cyan)}
+  .tok b{color:var(--ink-dim);font-weight:400}
+
+  /* ---------- PROMPT CARDS ---------- */
+  .prompts{margin-left:80px;display:grid;gap:14px}
+  .pcard{background:linear-gradient(180deg,var(--panel),var(--navy2));border:1px solid var(--line);border-radius:13px;overflow:hidden;transition:.18s}
+  .pcard:hover{border-color:var(--line2)}
+  .phead{padding:16px 19px;display:flex;align-items:flex-start;gap:14px;cursor:pointer}
+  .pcode{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--navy);background:var(--cyan);padding:3px 8px;border-radius:6px;flex-shrink:0;letter-spacing:.03em}
+  .ptitle{flex:1;min-width:0}
+  .ptitle h3{font-family:'Syne',sans-serif;font-weight:700;font-size:16.5px;letter-spacing:-.005em}
+  .ptitle .pint{margin-top:4px;color:var(--ink-dim);font-size:13.5px}
+  .chev{width:19px;height:19px;stroke:var(--ink-faint);flex-shrink:0;transition:.25s;margin-top:4px}
+  .pcard.open .chev{transform:rotate(180deg);stroke:var(--yellow)}
+
+  .pbody{display:none;border-top:1px solid var(--line);padding:0 19px 19px}
+  .pcard.open .pbody{display:block;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+
+  .pmeta{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0 13px}
+  .mp{font-family:var(--mono);font-size:11px;background:var(--navy2);border:1px solid var(--line);padding:6px 11px;border-radius:7px;color:var(--ink-dim)}
+  .mp b{color:var(--yellow);font-weight:600}
+  .mp.adapt{border-left:2px solid var(--cyan)}
+  .mp.adapt b{color:var(--cyan)}
+
+  .pbox{position:relative;background:#050d24;border:1px solid var(--line);border-radius:10px;padding:15px 15px 13px}
+  .pbox pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink-dim);white-space:pre-wrap;word-break:break-word}
+  .pbox pre b{color:var(--yellow);font-weight:600}
+  .pbtns{display:flex;gap:8px;margin-top:12px}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--ink-dim);padding:8px 13px;border-radius:8px;transition:.15s}
+  .btn:hover{border-color:var(--cyan);color:var(--ink)}
+  .btn.primary{background:var(--yellow);color:var(--navy);border-color:var(--yellow);font-weight:700}
+  .btn.primary:hover{background:var(--yellow-deep)}
+  .btn.copied{background:var(--cyan);border-color:var(--cyan);color:var(--navy)}
+
+  .neg{margin-top:13px}
+  .neg .nl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+  .neg .nt{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);background:var(--navy2);border:1px solid var(--line);border-left:2px solid var(--cyan);padding:9px 12px;border-radius:0 8px 8px 0;line-height:1.55}
+
+  .empty{margin-left:80px;text-align:center;padding:60px 20px;color:var(--ink-faint);font-family:var(--mono);font-size:13px}
+  footer{border-top:1px solid var(--line);margin-top:50px;padding:26px 0;color:var(--ink-faint);font-family:var(--mono);font-size:11px;letter-spacing:.03em}
+  footer b{color:var(--ink-dim)}
+
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--yellow);color:var(--navy);font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.04em;padding:11px 20px;border-radius:10px;z-index:60;transition:.25s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .navtoggle{display:none}
+  @media(max-width:880px){
+    .shell{grid-template-columns:1fr}
+    nav.side{position:fixed;left:0;top:0;width:300px;transform:translateX(-100%);transition:.25s;z-index:50}
+    nav.side.open{transform:none}
+    .navtoggle{display:flex;position:fixed;top:14px;left:14px;z-index:55;background:var(--yellow);color:var(--navy);border:none;width:44px;height:44px;border-radius:11px;align-items:center;justify-content:center;cursor:pointer}
+    .navtoggle svg{width:22px;height:22px;stroke:var(--navy)}
+    .inner{padding:0 18px}
+    .snum{font-size:34px;width:46px}
+    .srule,.gl,.prompts,.empty{margin-left:0}
+    header.hero{padding-top:70px}
+  }
+</style>
+</head>
+<body>
+<button class="navtoggle" id="navtoggle" aria-label="menu"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+<div class="shell">
+  <nav class="side" id="side">
+    <div class="brandmark"><div class="sq"></div><div class="bt">AERIAL &amp; ARCHITECTURAL<br><em>PROMPT LIBRARY</em></div></div>
+    <div class="navsub">Contents</div>
+    <div class="navlist" id="navlist"></div>
+  </nav>
+  <main>
+    <div class="inner">
+      <header class="hero">
+        <div class="kicker">Internal AI Visual System · v1.0</div>
+        <h1 class="title">AI Guidelines<span class="c">,</span><br>Aerial &amp; <span class="y">Architectural</span><br>Prompt Library</h1>
+        <p class="lede">A universal, reusable prompt system for AI architectural and real-estate visualization. Every prompt is property-agnostic — adapt the bracketed tokens to any house, villa, tower, hotel, or development and keep a consistent premium output across the entire portfolio.</p>
+        <div class="herometa" id="herometa"></div>
+      </header>
+    </div>
+    <div class="searchwrap">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="search" type="text" placeholder="search angles, lighting, framing, settings…" autocomplete="off">
+        <span class="cnt" id="cnt"></span>
+      </div>
+    </div>
+    <div class="inner" id="content"></div>
+    <div class="inner"><footer>UNIVERSAL ARCHITECTURAL PROMPT SYSTEM · Google Flow / Nano Banana Pro / Imagen · image-to-image · <b>keep Image Strength low to preserve real layout</b> · enhance existing sky, never replace · adapt bracketed tokens per property.</footer></div>
+  </main>
+</div>
+<div class="toast" id="toast">Copied</div>
+
+<script>
+window.GUIDE = {
+  tokens:[
+    {t:'{PROPERTY}', d:'house · villa · apartment block · residential tower · office · hotel · landmark · mixed-use development'},
+    {t:'{STYLE}', d:'modern · minimalist · tropical contemporary · classical · industrial · Mediterranean · Japandi'},
+    {t:'{MATERIAL}', d:'glass curtain wall · render · exposed concrete · brick · timber · stone · metal cladding'},
+    {t:'{CONTEXT}', d:'urban street · gated estate · waterfront · hillside · garden setting · dense city centre · suburban'},
+    {t:'{TIME}', d:'golden hour · blue hour · soft mid-morning · overcast diffused'},
+    {t:'{SUNDIR}', d:'left / right / behind — keep one consistent direction per shot'}
+  ],
+  cards:[
+    {h:'1 · Purpose', html:'<p>This library standardizes how AI architectural visuals are produced so output stays consistent, premium, and on-brand across every property type. Treat each prompt as a reusable template: swap the bracketed tokens, keep the structure.</p>'},
+    {h:'2 · The Token System', html:'<p>Every prompt contains capitalized tokens in braces. Replace them with the specifics of the property you are shooting. Never leave a token unfilled.</p>'},
+    {h:'3 · The Five-Part Prompt Skeleton', html:'<p>All shot prompts follow the same order so the model parses them reliably: <code>FRAMING → LIGHTING → MATERIAL &amp; DETAIL → COLOR GRADE → OUTPUT</code>. Short discrete lines outperform dense paragraphs for instruction-following.</p>'},
+    {h:'4 · Core Rules', html:'<ul><li>Keep Image Strength low (0.35–0.55) to preserve real architecture and layout.</li><li>Enhance the existing sky — never replace it.</li><li>One consistent light direction per image; never mix sun angles.</li><li>Preserve true material behaviour — no plastic sheen, no CGI gloss, no oversharpening.</li><li>Never add, remove, or restructure the building. Micro-adjustments (straightening verticals, cleaning clutter) only.</li><li>Ultra-luxury copy and visuals never name a problem the buyer would never have imagined experiencing.</li></ul>'},
+    {h:'5 · Recommended Engine Settings', html:'<p>Defaults for Google Flow / Nano Banana Pro / Imagen image-to-image: <code>Image Strength 0.35–0.55</code> · <code>Guidance 7.5–9.0</code>. Lower strength preserves layout; raise guidance for stronger prompt adherence. Use the same seed across a set for a consistent lighting mood.</p>'}
+  ]
+};
+
+window.CATS = [
+/* ============ 1 · AERIAL PERSPECTIVES ============ */
+{num:'01', id:'aerial', name:'Aerial Perspectives', desc:'Drone obliques and top-downs that establish the whole property and its grounds. The workhorse category for hero and site-context imagery.',
+ prompts:[
+  {code:'AP-1', title:'Classic High Oblique 45° Hero', intent:'The standard premium real-estate aerial — building centered, grounds readable.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Any property with grounds — estates, towers, hotels, developments.',
+   neg:'overexposed surfaces, flat lighting, HDR halos, CGI render, plastic textures, altered massing, sky replacement, added structures',
+   prompt:`FRAMING — Aerial drone, ~120m altitude, 45° downward tilt. {PROPERTY} centered, primary facade facing camera. Full grounds and immediate {CONTEXT} visible.
+LIGHTING — {TIME} directional sunlight from the {SUNDIR}. Warm rake across the facade, defined shadow on the opposite face, long soft shadows across the grounds. Preserve highlight detail.
+MATERIAL & DETAIL — Enhance {MATERIAL}, roofing, paving, and greenery. Realistic reflections on glazing and water. No oversharpening.
+COLOR GRADE — Warm neutral high-end palette. Balanced whites, natural greens and earth tones, controlled contrast, polished cinematic finish.
+OUTPUT — Photorealistic aerial architectural photography, investment-grade marketing. True 4K. No distortion. No added or altered structures.`},
+  {code:'AP-2', title:'True Nadir Top-Down (Site Plan)', intent:'Straight-down view that reads like a site plan — footprint, grounds, circulation.',
+   settings:'Strength 0.50–0.60 · Guidance 7.5', adapt:'Master-planned developments, estates, campuses, any site needing a plan view.',
+   neg:'tilted camera, satellite-flat texture, vehicles, messy rooftop, unclear roads, HDR halos, altered footprint',
+   prompt:`FRAMING — Aerial drone, ~200m altitude, 90° straight-down nadir. {PROPERTY} footprint centered. Roads, parking, and landscaping read as a clean geometric layout.
+LIGHTING — Overhead sun with a slight {SUNDIR} offset so verticals cast short, legible shadows. Warm-lit roof and paving; cool shadow pools under tree canopies.
+MATERIAL & DETAIL — Clean rooftop (no clutter), crisp parapet lines, defined paving joints, geometric planting beds, organic canopy circles.
+COLOR GRADE — Controlled site-plan aesthetic. Clean warm-grey hardscape, rich greens, no color cast.
+OUTPUT — Photorealistic top-down aerial for site-plan and location documents. True 4K. Razor-sharp geometry, no perspective distortion.`},
+  {code:'AP-3', title:'Corner Oblique Quarter View', intent:'Shows two facades at once — reveals full massing and architectural geometry.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Towers, offices, hotels, corner-plot homes — anything with strong massing.',
+   neg:'flat lighting on both faces, lost corner detail, HDR halos, CGI look, altered massing, distorted proportions',
+   prompt:`FRAMING — Aerial drone, ~120–150m altitude, 40–45° tilt, positioned 45° to the building corner so both primary and secondary facades are equally visible. {CONTEXT} in the background.
+LIGHTING — {TIME} directional split light: one facade fully lit, the adjacent face transitioning into soft shade across the corner. Specular catch on corner glazing/edge.
+MATERIAL & DETAIL — Articulate {MATERIAL}, horizontal banding, balcony edges, and window rhythm across both visible planes.
+COLOR GRADE — Architectural split-tone — warm sunlit face, cool shaded face. Rich contrast at the corner transition to emphasize mass.
+OUTPUT — Photorealistic corner aerial showing full massing and facade character. True 4K. No distortion, no altered proportions.`},
+  {code:'AP-4', title:'Low Bird\u2019s-Eye Frontal', intent:'Low-altitude drama — building fills the frame, foreground context as a layer.',
+   settings:'Strength 0.40–0.50 · Guidance 8.5', adapt:'Towers and large facades; use a foreground element (road, garden, water) as a layer.',
+   neg:'overexposed sky, blown glazing, fisheye distortion, HDR halos, plastic glass, removed foreground',
+   prompt:`FRAMING — Aerial drone, 60–80m altitude, 25–30° tilt. {PROPERTY} fills ~70% of the frame vertically, from base to roofline crown. A {CONTEXT} element anchors the lower third as a foreground layer. Sky ~25% upper frame.
+LIGHTING — Strong {TIME} light from the {SUNDIR}. Full facade bathed in warm reflective light; opposite edge in deep cool shadow for contrast.
+MATERIAL & DETAIL — Highly reflective {MATERIAL} capturing warm sky; partial interior depth in shadowed glazing.
+COLOR GRADE — High-drama warm palette, deep contrast between lit facade and cool sky. No overexposure on bright surfaces.
+OUTPUT — Photorealistic low aerial, dramatic aspirational impression, marketing-grade. True 4K. No distortion. Foreground retained as context.`}
+ ]},
+
+/* ============ 2 · DRONE ELEVATION ANGLES ============ */
+{num:'02', id:'elevation', name:'Drone Elevation Angles', desc:'A complete altitude ladder. Each band tells a different story — from intimate detail near the ground to full city-scale context. Shoot the band that matches the message.',
+ prompts:[
+  {code:'DE-1', title:'Ground-Skimmer (5–10m)', intent:'Near-ground hover, slight upward look — monumental, editorial, high-impact.',
+   settings:'Strength 0.35–0.45 · Guidance 9.0', adapt:'Entrances, sculptural features, dramatic facades, signature foreground objects.',
+   neg:'corrected perspective, flat lighting, overexposed sky, plastic textures, lost foreground detail',
+   prompt:`FRAMING — Drone at 5–10m, 10–15° upward tilt, below tree-canopy level. Foreground feature or facade base looms large; {PROPERTY} crown peeks above. Sky visible in dramatic upward perspective.
+LIGHTING — {TIME} low look-up light from the {SUNDIR}; warm rake across the foreground, rim light on upper edges.
+MATERIAL & DETAIL — Maximum texture on near surfaces ({MATERIAL}, paving, sculpture). Crisp detail at close range.
+COLOR GRADE — Maximum warmth, rich atmospheric sky, vivid foreground.
+OUTPUT — Photorealistic near-ground editorial frame, strongest single visual impact. True 4K. Intentional upward perspective — do not correct.`},
+  {code:'DE-2', title:'Low Hover (15–30m)', intent:'Building fully revealed, intimate scale, foreground still textured.',
+   settings:'Strength 0.40–0.50 · Guidance 8.5', adapt:'Houses, villas, low-rise — full facade plus immediate landscaping.',
+   neg:'flat lighting, washed materials, overexposed sky sliver, HDR halos, vehicles, blurred foreground',
+   prompt:`FRAMING — Drone at 15–30m, 5–20° tilt. {PROPERTY} fully visible from base to roofline; immediate {CONTEXT} and landscaping in foreground. Minimal sky.
+LIGHTING — {TIME} directional from the {SUNDIR}; warm front light on the facade, soft defined ground shadows.
+MATERIAL & DETAIL — Rich {MATERIAL} and joinery detail; warm-lit canopy tops; clean paving.
+COLOR GRADE — Warm premium palette, vivid facade, controlled contrast.
+OUTPUT — Photorealistic low-hover aerial, hero combination of building and grounds. True 4K. No distortion.`},
+  {code:'DE-3', title:'Mid Elevation Hero (40–80m)', intent:'The sweet spot — sky, building, foreground and grounds all balanced.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Universal hero band for nearly every property type.',
+   neg:'flat lighting, washed materials, HDR halos, overexposed surfaces, vehicles, plastic textures',
+   prompt:`FRAMING — Drone at 40–80m, 35–45° tilt. {PROPERTY} centered with full facade and partial rooftop; grounds and {CONTEXT} read clearly below; sky 15–25% upper frame. All four zones (sky / building / feature / ground) present and balanced.
+LIGHTING — {TIME} directional from the {SUNDIR}, consistent single source. Warm facade, defined shadows, no zone in flat shadow.
+MATERIAL & DETAIL — Enhance {MATERIAL}, roofing, paving, greenery; realistic glazing reflections.
+COLOR GRADE — Warm high-end aerial palette, controlled cinematic contrast.
+OUTPUT — Photorealistic balanced hero aerial — primary marketing frame. True 4K. Everything sharp.`},
+  {code:'DE-4', title:'High Context (100–150m)', intent:'Building reads within its site and neighbourhood — premium island in context.',
+   settings:'Strength 0.50–0.60 · Guidance 7.5', adapt:'Developments and estates where surroundings tell a positioning story.',
+   neg:'property lost in context, flat lighting, HDR, unclear boundary, overexposed surroundings, satellite-flat look',
+   prompt:`FRAMING — Drone at 100–150m, 45–50° tilt. {PROPERTY} centered with full site boundary; surrounding {CONTEXT} visible on all sides. Property reads as a cleaner, more organized zone than its surroundings.
+LIGHTING — {TIME} consistent across the wide frame. Property landscaping richer and warmer than surrounding fabric.
+MATERIAL & DETAIL — Clean rooftop and grounds; distinct boundary line between premium property and context.
+COLOR GRADE — Wide warm palette; property as a premium island; surroundings warm-neutral.
+OUTPUT — Photorealistic high-context aerial communicating exclusivity, scale, and location. True 4K. Boundary sharp, context readable.`},
+  {code:'DE-5', title:'City-Scale Panorama (250–500m)', intent:'Maximum altitude — property as an address within the full city/landscape.',
+   settings:'Strength 0.60–0.70 · Guidance 7.0', adapt:'Landmark positioning, investment decks, regional context. Note local drone-altitude limits.',
+   neg:'flat map look, no atmospheric depth, sky replacement, artificial HDR, property invisible, overexposed horizon',
+   prompt:`FRAMING — Drone at 250–500m, 40–55° tilt. Full {CONTEXT} panorama; {PROPERTY} identifiable as a premium node within the wider fabric. Horizon and sky present (up to 40% at the highest band).
+LIGHTING — {TIME} from the {SUNDIR} across the entire scene; progressive atmospheric haze toward the horizon; property among the warmest, cleanest elements.
+MATERIAL & DETAIL — Property identifiable by color/form signature; surrounding fabric softening into warm haze.
+COLOR GRADE — Cinematic city-scale palette, rich gradient sky, maximum atmospheric depth.
+OUTPUT — Photorealistic maximum-altitude panorama establishing the address. True 4K. Atmospheric haze enhanced — never replace the sky.`}
+ ]},
+
+/* ============ 3 · STREET-LEVEL EXTERIOR SHOTS ============ */
+{num:'03', id:'street', name:'Street-Level Exterior Shots', desc:'Human-eye perspectives from the street — how the property is actually experienced on arrival.',
+ prompts:[
+  {code:'SL-1', title:'Eye-Level Frontal', intent:'Clean, honest frontal view from the street at human height.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Every property type; the baseline documentation frame.',
+   neg:'distorted perspective, tilted verticals, harsh shadows, overexposed sky, washed materials, fisheye',
+   prompt:`FRAMING — Ground level, ~1.5m height, facing {PROPERTY} frontally from the street. Full facade in frame, immediate {CONTEXT} foreground.
+LIGHTING — {TIME} from the {SUNDIR}; even, dimensional facade light; soft natural ground shadows.
+MATERIAL & DETAIL — Enhance {MATERIAL}, window frames, entrance, landscaping edges. Clean, well-maintained.
+COLOR GRADE — Clean premium palette, accurate material tones, controlled contrast.
+OUTPUT — Photorealistic street-level frontal, listing-quality. True 4K. Straight verticals, no distortion.`},
+  {code:'SL-2', title:'Three-Quarter Walk-Up', intent:'Approaching angle showing depth and entry — the natural arrival view.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Houses, villas, hotels, offices — anywhere arrival matters.',
+   neg:'lost depth, flat lighting, distorted proportions, overexposed sky, HDR halos',
+   prompt:`FRAMING — Ground level, ~1.5m, positioned 30–45° to {PROPERTY} so primary facade and one side recede — showing depth and the path to entry. {CONTEXT} foreground.
+LIGHTING — {TIME} from the {SUNDIR}; sunlit primary face, softly shaded receding face for dimensionality.
+MATERIAL & DETAIL — {MATERIAL} and entry detail crisp; landscaping framing the approach.
+COLOR GRADE — Warm premium palette, dimensional contrast.
+OUTPUT — Photorealistic three-quarter approach, aspirational arrival impression. True 4K. No distortion.`},
+  {code:'SL-3', title:'Low Dramatic Upward', intent:'Camera low, angled up — emphasizes height and presence.',
+   settings:'Strength 0.40–0.50 · Guidance 8.5', adapt:'Towers, tall facades, statement entrances.',
+   neg:'corrected verticals, flat sky, washed materials, overexposed sky, removed drama',
+   prompt:`FRAMING — Ground level, ~0.5m, 30–40° upward tilt. {PROPERTY} corner or facade converges upward dramatically; sky fills the upper half with cloud depth.
+LIGHTING — {TIME}; facade rim-lit from a low angle, soffits in cool shade for contrast.
+MATERIAL & DETAIL — {MATERIAL} vivid against the sky; structural rhythm emphasized by convergence.
+COLOR GRADE — High drama, vivid facade against atmospheric sky, deep soffit shadow.
+OUTPUT — Photorealistic low-angle hero, high-impact editorial. True 4K. Vertical convergence intentional — do not correct.`},
+  {code:'SL-4', title:'Distant Telephoto Compression', intent:'Long-lens look from afar — building compressed against its context.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Urban towers and landmarks with layered surroundings.',
+   neg:'wide-angle distortion, removed haze, overexposed surfaces, flat lighting, artificial sharpness on distant elements',
+   prompt:`FRAMING — Ground/low platform, telephoto 200–400mm feel, shot from 400–800m away. {PROPERTY} compressed against {CONTEXT}; foreground, mid-ground and subject stack as layered planes.
+LIGHTING — {TIME} from the {SUNDIR}; subtle atmospheric haze between camera and subject for distance realism; warm reflection on the facade punching through.
+MATERIAL & DETAIL — Sharp foreground vs softly hazy subject; layered urban depth.
+COLOR GRADE — Warm atmospheric telephoto palette; slight haze desaturation on the building vs crisp foreground.
+OUTPUT — Photorealistic distant telephoto — building within its city, not as the whole frame. True 4K. Compression and haze preserved.`}
+ ]},
+
+/* ============ 4 · HOUSE FACADE COMPOSITIONS ============ */
+{num:'04', id:'facade', name:'House Facade Compositions', desc:'Facade-first framing for homes, villas and low-rise — the core of residential marketing.',
+ prompts:[
+  {code:'FC-1', title:'Flat Frontal Facade', intent:'Architectural elevation-style frontal — symmetrical and clean.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Houses, villas, townhouses, boutique facades.',
+   neg:'asymmetrical lighting, deep facade shadows, washed materials, tilted verticals, distortion',
+   prompt:`FRAMING — Ground level, on the central axis of {PROPERTY}, facing the facade straight-on. Symmetrical composition, equal reveal left and right.
+LIGHTING — Soft {TIME} from a slight {SUNDIR}; even, dimensional facade light without harsh shadows obscuring detail.
+MATERIAL & DETAIL — {MATERIAL}, window rhythm, door, trim and texture clearly articulated.
+COLOR GRADE — Clean bright premium palette, accurate tones, controlled contrast.
+OUTPUT — Photorealistic frontal facade composition, architectural-presentation quality. True 4K. Perfect verticals, no distortion.`},
+  {code:'FC-2', title:'Facade Cleanup & Surface Perfection', intent:'Enhancement pass — clean, repair and relight an existing facade photo.',
+   settings:'Strength 0.40–0.55 · Guidance 7.5–9.0', adapt:'Any exterior photo needing decluttering, surface repair and relighting.',
+   neg:'overexposed highlights, blue cast, flat overcast light, HDR halos, plastic wall texture, CGI look, altered architecture, removed features',
+   prompt:`CLEANUP — Remove parked vehicles, construction materials, signage clutter, weeds; eliminate stains on driveway, fence and gate.
+SURFACE PERFECTION — Correct wall stains, efflorescence, paint discoloration, weathering; refine frames, overhangs, fascia; correct concrete discoloration. Keep realistic {MATERIAL} texture.
+LIGHTING — {TIME} directional from the {SUNDIR}; balanced exposure across the elevation; defined shadows from eaves and projections; no overexposure on bright walls.
+MATERIAL & DETAIL — Enhance finishes, glazing, roofing, metalwork; subtle realistic glass reflections.
+COLOR GRADE — Neutral-warm exterior palette, no color cast, crisp editorial finish.
+OUTPUT — Photorealistic facade enhancement. True 4K. Micro-adjustments only — straighten verticals, no architectural changes.`},
+  {code:'FC-3', title:'Facade Material Study', intent:'Closer framing emphasizing facade texture and material craftsmanship.',
+   settings:'Strength 0.35–0.45 · Guidance 8.5', adapt:'Premium homes where materiality is a selling point.',
+   neg:'plastic sheen, oversmoothed surfaces, lost texture, HDR, CGI look, oversharpened',
+   prompt:`FRAMING — Ground level, tighter crop on a characterful section of the {PROPERTY} facade — entry bay, material junction, or feature wall.
+LIGHTING — {TIME} raking light from the {SUNDIR} to maximize {MATERIAL} texture and shadow depth.
+MATERIAL & DETAIL — Maximum realistic texture — grain, joints, reveals; honest material behaviour, no gloss.
+COLOR GRADE — Warm editorial palette emphasizing material richness.
+OUTPUT — Photorealistic facade material study, editorial quality. True 4K. No oversharpening, no plastic look.`}
+ ]},
+
+/* ============ 5 · BUILDING HERO ANGLES ============ */
+{num:'05', id:'hero', name:'Building Hero Angles', desc:'The signature shots — the one frame that defines the property on a cover or homepage.',
+ prompts:[
+  {code:'BH-1', title:'Signature Corner Hero', intent:'Three-quarter ground or low-aerial hero showing mass and identity.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Towers, hotels, offices, statement homes.',
+   neg:'flat lighting, lost corner detail, HDR halos, CGI look, altered massing, overexposed glazing',
+   prompt:`FRAMING — Low aerial or elevated ground, 30–45° to the {PROPERTY} corner; both primary facades visible, building dominant in frame, {CONTEXT} supporting.
+LIGHTING — {TIME} directional from the {SUNDIR}; bold split between sunlit and shaded faces; specular catch on the corner.
+MATERIAL & DETAIL — {MATERIAL}, banding, balconies and crown articulated; realistic glazing reflections.
+COLOR GRADE — Premium architectural split-tone, rich corner contrast, cinematic finish.
+OUTPUT — Photorealistic signature corner hero — cover-grade. True 4K. No distortion, true proportions.`},
+  {code:'BH-2', title:'Vertical Tower Hero', intent:'Emphasizes verticality and stature for tall buildings.',
+   settings:'Strength 0.40–0.50 · Guidance 8.5', adapt:'Residential and office towers, tall mixed-use.',
+   neg:'corrected verticals, flat sky, overexposed glazing, washed materials, removed sky drama',
+   prompt:`FRAMING — Low ground or low drone, angled up the full height of {PROPERTY}; facade converges to a crown against an atmospheric sky.
+LIGHTING — {TIME}; facade catches warm sidelight, sky provides dramatic backdrop, crown rim-lit.
+MATERIAL & DETAIL — Vertical {MATERIAL} rhythm emphasized; crown and top floors detailed.
+COLOR GRADE — High-drama palette, vivid facade against gradient sky.
+OUTPUT — Photorealistic vertical hero conveying stature. True 4K. Intentional convergence — do not correct.`},
+  {code:'BH-3', title:'Crown / Rooftop Eye-Level', intent:'Drone at crown height — building top against the skyline horizon.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Towers and landmarks with a notable crown or rooftop amenity.',
+   neg:'sky replacement, fake sunset overlay, overexposed horizon, HDR halos, altered skyline, CGI background',
+   prompt:`FRAMING — Drone at the crown height of {PROPERTY}, near-horizontal (5–10° down); rooftop/crown at eye level, {CONTEXT} skyline behind, sky a major element.
+LIGHTING — {TIME} horizon light from the {SUNDIR}; warm crown, backlit skyline in warm silhouette with detail; glazing reflecting warm sky.
+MATERIAL & DETAIL — Upper facade and crown maximally detailed; distant skyline in atmospheric haze.
+COLOR GRADE — Cinematic golden/blue-hour gradient, maximum atmospheric depth.
+OUTPUT — Photorealistic crown-level landmark frame. True 4K. Skyline retained — no sky replacement.`}
+ ]},
+
+/* ============ 6 · LUXURY REAL ESTATE FRAMING ============ */
+{num:'06', id:'luxury', name:'Luxury Real Estate Framing', desc:'Elevated, editorial compositions that read as premium lifestyle, not documentation.',
+ prompts:[
+  {code:'LX-1', title:'Glazing Reflection Hero', intent:'Golden-hour glass capturing warm sky — the signature luxury glow.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Glass-forward homes, villas, towers, hotels.',
+   neg:'overexposed glass, blown highlights, mirror-flat glazing, HDR halos, plastic look, blue cast',
+   prompt:`FRAMING — Three-quarter or frontal, framed so {PROPERTY} glazing dominates the composition.
+LIGHTING — {TIME} from the {SUNDIR}; warm sky and sunlight captured in the glass with partial interior depth visible.
+MATERIAL & DETAIL — Realistic reflective {MATERIAL}; subtle warm bloom, no blown highlights.
+COLOR GRADE — Warm luxury palette, rich glass reflection, controlled contrast.
+OUTPUT — Photorealistic glazing hero, premium editorial. True 4K. No overexposure on glass.`},
+  {code:'LX-2', title:'Negative-Space Editorial', intent:'Magazine-style composition with generous space and a quiet, confident subject.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Minimalist and high-design properties; brand and editorial use.',
+   neg:'cluttered frame, busy background, flat lighting, HDR, oversaturated, CGI look',
+   prompt:`FRAMING — {PROPERTY} placed off-center against generous negative space (open sky, water, or lawn). Calm, editorial composition.
+LIGHTING — Soft {TIME} from the {SUNDIR}; restrained, refined light; gentle shadow gradation.
+MATERIAL & DETAIL — {MATERIAL} clean and quiet; minimal distraction; impeccable surfaces.
+COLOR GRADE — Muted premium palette, refined contrast, magazine finish.
+OUTPUT — Photorealistic editorial frame with luxury restraint. True 4K. No clutter, no distortion.`},
+  {code:'LX-3', title:'Layered Foreground Frame', intent:'A foreground element frames the property for depth and exclusivity.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Estates with gates, gardens, water, or architectural foreground elements.',
+   neg:'flat depth, distracting foreground, overexposed surfaces, HDR halos, artificial bokeh',
+   prompt:`FRAMING — {PROPERTY} viewed through a foreground layer ({CONTEXT} element — foliage, gateway, water edge, pergola) that frames the building.
+LIGHTING — {TIME} from the {SUNDIR}; foreground softly shaded, subject warm-lit — depth through tonal layering.
+MATERIAL & DETAIL — Sharp subject, soft natural foreground; realistic depth falloff.
+COLOR GRADE — Warm layered palette, foreground-to-subject tonal progression.
+OUTPUT — Photorealistic layered luxury frame conveying depth and exclusivity. True 4K. Natural depth, no artificial bokeh.`}
+ ]}
+];
+
+window.CATS = window.CATS.concat([
+/* ============ 7 · ARCHITECTURAL PERSPECTIVE VARIATIONS ============ */
+{num:'07', id:'perspective', name:'Architectural Perspective Variations', desc:'Deliberate perspective control — the same building reads differently depending on the projection you choose.',
+ prompts:[
+  {code:'PV-1', title:'One-Point Frontal Perspective', intent:'Lines converge to a single point — formal, calm, symmetrical.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Symmetrical facades, corridors, colonnades, axial approaches.',
+   neg:'two-point skew, tilted verticals, distortion, flat lighting, overexposed surfaces',
+   prompt:`FRAMING — On-axis to {PROPERTY}; parallel lines converge to a single central vanishing point. Verticals kept perfectly straight.
+LIGHTING — Soft {TIME} from the {SUNDIR}; even, formal light.
+MATERIAL & DETAIL — {MATERIAL} and repeating elements articulated symmetrically.
+COLOR GRADE — Clean balanced palette, controlled contrast.
+OUTPUT — Photorealistic one-point perspective, formal architectural quality. True 4K. Single vanishing point, straight verticals.`},
+  {code:'PV-2', title:'Two-Point Corner Perspective', intent:'Both facades recede to two points — dynamic, dimensional, realistic.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Corner buildings, towers, three-dimensional massing.',
+   neg:'converging verticals, fisheye, lost corner, flat lighting, distorted proportions',
+   prompt:`FRAMING — Positioned at the {PROPERTY} corner; two facades recede to left and right vanishing points; verticals stay straight (no keystone).
+LIGHTING — {TIME} directional from the {SUNDIR}; sunlit and shaded faces for dimensionality.
+MATERIAL & DETAIL — {MATERIAL} and window rhythm articulated across both planes.
+COLOR GRADE — Dimensional split-tone, rich corner contrast.
+OUTPUT — Photorealistic two-point corner perspective, dynamic and realistic. True 4K. Straight verticals, true proportions.`},
+  {code:'PV-3', title:'Forced Perspective Convergence', intent:'Exaggerated convergence for drama and scale.',
+   settings:'Strength 0.40–0.50 · Guidance 8.5', adapt:'Plazas, approaches, long facades, dramatic foregrounds.',
+   neg:'corrected perspective, flat foreground, overexposed surfaces, HDR, lost convergence',
+   prompt:`FRAMING — Low camera on a strong leading line (path, plaza pattern, colonnade) toward {PROPERTY}; aggressive convergence pulls the eye to the building.
+LIGHTING — {TIME} raking light from the {SUNDIR} maximizing foreground texture and depth.
+MATERIAL & DETAIL — Foreground {MATERIAL}/paving texture sharp and converging; building anchored at the focal point.
+COLOR GRADE — Warm dramatic palette, deep foreground texture.
+OUTPUT — Photorealistic forced-perspective frame for scale and drama. True 4K. Intentional convergence — do not correct.`}
+ ]},
+
+/* ============ 8 · URBAN ENVIRONMENT SHOTS ============ */
+{num:'08', id:'urban', name:'Urban Environment Shots', desc:'The building as part of the city — context that communicates location, prestige and connectivity.',
+ prompts:[
+  {code:'UE-1', title:'Building-in-Skyline', intent:'Property identifiable within the wider skyline silhouette.',
+   settings:'Strength 0.50–0.60 · Guidance 7.5', adapt:'Towers and landmarks within a recognizable skyline.',
+   neg:'building lost in skyline, flat lighting, HDR halos, sky replacement, artificial skyline',
+   prompt:`FRAMING — Elevated or distant view of the {CONTEXT} skyline with {PROPERTY} clearly identifiable as a dominant or signature element.
+LIGHTING — {TIME} from the {SUNDIR}; subject among the brightest, warmest elements; skyline in supporting warm tone.
+MATERIAL & DETAIL — Subject {MATERIAL} reads clearly; neighbouring buildings in atmospheric context.
+COLOR GRADE — Warm skyline palette, subject as anchor.
+OUTPUT — Photorealistic skyline frame establishing prominence. True 4K. No sky replacement.`},
+  {code:'UE-2', title:'Cross-City Elevated', intent:'View from a neighbouring height — layered city depth between camera and subject.',
+   settings:'Strength 0.50–0.60 · Guidance 7.5', adapt:'Dense urban towers and developments.',
+   neg:'removed urban layers, flat background, HDR halos, overexposed subject, artificial sky',
+   prompt:`FRAMING — Elevated position ~400–600m away at 60–80m height, near-horizontal. Full {CONTEXT} fabric between camera and {PROPERTY} as depth layers; subject centered against sky.
+LIGHTING — {TIME} from the {SUNDIR}; subject brightest in mid-ground; intervening fabric in warm rooftops and cool canyon shadows.
+MATERIAL & DETAIL — Layered depth: foreground rooftops → mid fabric → subject → distant haze.
+COLOR GRADE — Layered warm palette, tonal progression to subject.
+OUTPUT — Photorealistic cross-city elevated frame showing scale relationship. True 4K. All layers preserved.`},
+  {code:'UE-3', title:'District Grid Context', intent:'Higher view showing the property within the road network and district.',
+   settings:'Strength 0.60–0.65 · Guidance 7.5', adapt:'Developments emphasizing access and connectivity.',
+   neg:'property indistinguishable, flat satellite look, HDR, overexposed district, artificial atmosphere',
+   prompt:`FRAMING — Drone ~250m, 50–55° tilt; {PROPERTY} centered within the {CONTEXT} district grid — major roads, blocks and green corridors visible.
+LIGHTING — {TIME} across the district; property warmer and cleaner than its surroundings.
+MATERIAL & DETAIL — Property identifiable by form/color; road hierarchy and access legible.
+COLOR GRADE — Warm district palette, property as premium node.
+OUTPUT — Photorealistic district-context aerial for location and access storytelling. True 4K. Clear boundary, readable grid.`}
+ ]},
+
+/* ============ 9 · CONTEXTUAL WIDE SHOTS ============ */
+{num:'09', id:'wide', name:'Contextual Wide Shots', desc:'Establishing frames that place the property in its landscape or city for narrative openers.',
+ prompts:[
+  {code:'CW-1', title:'Ultra-Wide Establishing', intent:'Panoramic opener — property as landmark in a wide field of view.',
+   settings:'Strength 0.55–0.65 · Guidance 7.0', adapt:'Hero banners, brochure covers, film openers.',
+   neg:'flat sky, subject too small, lost identity, HDR halos, oversaturated, sky replacement',
+   prompt:`FRAMING — Ultra-wide (16:9 or 2:1), drone or elevated, {PROPERTY} positioned as the dominant landmark within a full {CONTEXT} panorama.
+LIGHTING — {TIME} from the {SUNDIR}; maximum atmospheric quality; subject the brightest reflective anchor.
+MATERIAL & DETAIL — Subject clearly readable; surroundings in progressive warm haze.
+COLOR GRADE — Cinematic panoramic palette, rich gradient sky.
+OUTPUT — Photorealistic ultra-wide establishing frame, hero-grade. True 4K. Panoramic ratio. No sky replacement.`},
+  {code:'CW-2', title:'Property Within Landscape', intent:'Natural-setting wide shot — building nestled in its terrain.',
+   settings:'Strength 0.50–0.60 · Guidance 7.5', adapt:'Villas, estates, resorts, hillside or waterfront properties.',
+   neg:'flat landscape, oversaturated greens, HDR, artificial terrain, overexposed sky',
+   prompt:`FRAMING — Wide view of {PROPERTY} set within its natural {CONTEXT} (terrain, water, foliage); building reads in harmony with the landscape.
+LIGHTING — {TIME} from the {SUNDIR}; warm light unifying architecture and nature; dappled shade.
+MATERIAL & DETAIL — {MATERIAL} against rich natural textures; realistic foliage and water.
+COLOR GRADE — Warm natural palette, varied greens and earth tones.
+OUTPUT — Photorealistic landscape-context wide shot. True 4K. Natural, believable terrain.`},
+  {code:'CW-3', title:'Approach / Emergence', intent:'Building rising over intervening fabric as you approach — cinematic storytelling.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Landmarks and towers; brand films and editorial.',
+   neg:'sterile empty foreground, overexposed subject, sky replacement, HDR, flat lighting, lost haze',
+   prompt:`FRAMING — Distant ground-level view; {PROPERTY} upper portion emerges above intervening {CONTEXT} (trees, rooftops, overpasses); foreground street sharp.
+LIGHTING — {TIME} from the {SUNDIR}; subject glowing warm above darker fabric — beacon quality; layered atmospheric haze.
+MATERIAL & DETAIL — Sharp authentic foreground; soft warm subject through haze.
+COLOR GRADE — Documentary-editorial warm palette; foreground crisp, subject hazy-warm.
+OUTPUT — Photorealistic approach frame, cinematic storytelling. True 4K. Haze layers preserved.`}
+ ]},
+
+/* ============ 10 · TIGHT DETAIL EXTERIOR SHOTS ============ */
+{num:'10', id:'detail', name:'Tight Detail Exterior Shots', desc:'Close framing on craftsmanship — the texture and junction shots that signal quality.',
+ prompts:[
+  {code:'TD-1', title:'Material & Texture Macro', intent:'Close study of a single material surface.',
+   settings:'Strength 0.35–0.45 · Guidance 8.5', adapt:'Premium properties where material quality sells.',
+   neg:'plastic sheen, oversmoothed, lost grain, HDR, CGI look, oversharpened',
+   prompt:`FRAMING — Tight crop on a {MATERIAL} surface of {PROPERTY} — wall, cladding, stone, or timber detail.
+LIGHTING — {TIME} raking light from the {SUNDIR} to reveal grain, joints and depth.
+MATERIAL & DETAIL — Maximum realistic texture; honest material behaviour; no gloss.
+COLOR GRADE — Warm editorial palette emphasizing richness.
+OUTPUT — Photorealistic material macro, editorial quality. True 4K. No plastic look, no oversharpening.`},
+  {code:'TD-2', title:'Architectural Junction', intent:'Where materials or volumes meet — celebrates detailing.',
+   settings:'Strength 0.35–0.45 · Guidance 8.5', adapt:'Design-led homes, hotels, signature buildings.',
+   neg:'flat lighting, lost junction detail, plastic textures, HDR, oversharpened',
+   prompt:`FRAMING — Close framing on a junction of {PROPERTY} — material transition, soffit-to-wall, balcony edge, or roof-to-facade meeting.
+LIGHTING — {TIME} directional from the {SUNDIR}; shadow defines the junction geometry.
+MATERIAL & DETAIL — Both materials articulated where they meet; crisp shadow lines; realistic behaviour.
+COLOR GRADE — Warm palette, controlled contrast at the junction.
+OUTPUT — Photorealistic junction detail celebrating craftsmanship. True 4K. No oversharpening.`},
+  {code:'TD-3', title:'Glazing & Reflection Detail', intent:'Close glass study — reflection, depth, framing precision.',
+   settings:'Strength 0.35–0.45 · Guidance 8.5', adapt:'Glass-forward properties and curtain walls.',
+   neg:'blown highlights, mirror-flat glass, plastic frames, HDR halos, lost reflection depth',
+   prompt:`FRAMING — Close framing on a glazed section of {PROPERTY}; window module and frame precision in view.
+LIGHTING — {TIME} from the {SUNDIR}; warm sky reflection with partial interior depth; no blown highlights.
+MATERIAL & DETAIL — Realistic glass — layered reflection and transparency; crisp framing.
+COLOR GRADE — Warm palette, rich but controlled reflection.
+OUTPUT — Photorealistic glazing detail. True 4K. No mirror-flat glass, no blown highlights.`}
+ ]},
+
+/* ============ 11 · ENTRANCE & ARRIVAL VISUALS ============ */
+{num:'11', id:'entrance', name:'Entrance & Arrival Visuals', desc:'The arrival sequence — first impressions that set the tone for the whole property.',
+ prompts:[
+  {code:'EA-1', title:'Canopy / Porte-Cochère Arrival', intent:'Covered entrance hero — the premium drop-off moment.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Hotels, towers, luxury homes, offices with arrival canopies.',
+   neg:'overexposed canopy, flat lighting, cluttered drive, HDR halos, washed materials',
+   prompt:`FRAMING — Ground level facing the {PROPERTY} entrance canopy / porte-cochère; drive and threshold in frame.
+LIGHTING — {TIME} from the {SUNDIR}; warm-lit canopy top, soft protected shade beneath, inviting glow at the threshold.
+MATERIAL & DETAIL — Canopy structure, {MATERIAL}, entrance glazing and landscaping articulated; clean drive.
+COLOR GRADE — Warm welcoming palette, controlled contrast.
+OUTPUT — Photorealistic arrival hero. True 4K. Clean approach, no clutter.`},
+  {code:'EA-2', title:'Threshold Glow', intent:'Entrance lit from within — warm welcome, dusk-friendly.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Any property; especially strong at blue hour.',
+   neg:'uniform over-lighting, neon glow, overexposed interior, cold cast, daytime flatness',
+   prompt:`FRAMING — Ground level on the {PROPERTY} entrance; lobby/interior visible through the threshold glazing.
+LIGHTING — {TIME} exterior with warm interior light glowing through the entrance; subtle uplight on the facade base.
+MATERIAL & DETAIL — Threshold {MATERIAL}, glazing and entry detail crisp; realistic interior glow.
+COLOR GRADE — Warm-against-cool palette, inviting contrast.
+OUTPUT — Photorealistic threshold-glow arrival. True 4K. Natural lighting, no neon.`},
+  {code:'EA-3', title:'Driveway Approach', intent:'Leading-line approach down the drive toward the entrance.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Estates, villas, gated properties with a drive.',
+   neg:'flat depth, cluttered drive, overexposed surfaces, HDR, lost leading line',
+   prompt:`FRAMING — Low ground level on the driveway leading line toward the {PROPERTY} entrance; landscaping framing both sides.
+LIGHTING — {TIME} from the {SUNDIR}; warm raking light along the drive; soft shadows guiding the eye.
+MATERIAL & DETAIL — Drive {MATERIAL}, gateway, planting and entrance detail; clean surfaces.
+COLOR GRADE — Warm premium palette, depth along the drive.
+OUTPUT — Photorealistic driveway approach. True 4K. Strong leading line, no clutter.`}
+ ]},
+
+/* ============ 12 · GOLDEN HOUR / BLUE HOUR EXTERIORS ============ */
+{num:'12', id:'hour', name:'Golden Hour / Blue Hour Exteriors', desc:'Time-of-day treatments that carry most of the emotional weight in real-estate imagery.',
+ prompts:[
+  {code:'GB-1', title:'Golden Hour Directional Hero', intent:'Warm low sun raking the facade — the default premium look.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Universal; the safest premium time-of-day treatment.',
+   neg:'overexposed highlights, orange overcast cast, flat lighting, HDR halos, washed materials',
+   prompt:`FRAMING — Three-quarter or frontal on {PROPERTY}, composed for the warm low sun.
+LIGHTING — Golden hour from the {SUNDIR}; warm amber rake across {MATERIAL}; deep cool shadow on the opposite face; long soft ground shadows.
+MATERIAL & DETAIL — Warm-lit surfaces with preserved highlight detail; realistic glazing reflections.
+COLOR GRADE — Warm golden palette, deep contrast, cinematic finish.
+OUTPUT — Photorealistic golden-hour hero. True 4K. No overexposure, no orange wash.`},
+  {code:'GB-2', title:'Blue Hour Interior Glow', intent:'Deep-blue twilight with warm interior lighting — premium and aspirational.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Towers, hotels, homes; strongest for hospitality and luxury.',
+   neg:'daytime sky, uniform window lighting, neon glow, overexposed interior, cold cast on facade, orange sky',
+   prompt:`FRAMING — {PROPERTY} at deep twilight, composed to show interior light through glazing.
+LIGHTING — Blue hour deep-blue sky; warm interior light glowing through windows (realistic occupancy — some lit, some dark); subtle warm facade wash.
+MATERIAL & DETAIL — Cool ambient {MATERIAL}, warm lit windows, subtle reflections on wet/paved surfaces.
+COLOR GRADE — Classic blue-hour palette, deep blue against warm amber.
+OUTPUT — Photorealistic blue-hour glow. True 4K. Realistic non-uniform lighting, no neon.`},
+  {code:'GB-3', title:'Backlit Silhouette Drama', intent:'Sun behind the building — rim light and atmospheric glow.',
+   settings:'Strength 0.40–0.50 · Guidance 8.5', adapt:'Statement facades and corners; high-impact editorial.',
+   neg:'blown sun glow, lens-flare artifacts, flat fill, lost shadow depth, overexposed sky',
+   prompt:`FRAMING — Camera positioned so the {TIME} sun sits behind the {PROPERTY} (behind a corner/roofline); controlled atmospheric glow.
+LIGHTING — Strong backlight; rim light on edges; facade in warm reflected fill; deep defined shadow on shaded planes.
+MATERIAL & DETAIL — Edge-lit {MATERIAL}; rich shadow depth retained; foreground in silhouette where appropriate.
+COLOR GRADE — Maximum backlit drama, warm-to-shadow contrast.
+OUTPUT — Photorealistic backlit drama frame. True 4K. Sun glow atmospheric — not blown, no lens-flare artifacts.`}
+ ]},
+
+/* ============ 13 · SYMMETRICAL & CINEMATIC ANGLES ============ */
+{num:'13', id:'symmetry', name:'Symmetrical & Cinematic Angles', desc:'Controlled, deliberate compositions with film-grade balance and stillness.',
+ prompts:[
+  {code:'SC-1', title:'Perfect Symmetry Frontal', intent:'Dead-center symmetrical frame — formal and powerful.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Symmetrical facades, classical and minimalist architecture.',
+   neg:'asymmetrical light, tilted verticals, distortion, off-axis framing, washed materials',
+   prompt:`FRAMING — Perfectly centered on the {PROPERTY} symmetry axis; equal left/right balance; verticals dead straight.
+LIGHTING — Even {TIME} from a near-frontal {SUNDIR}; balanced across the symmetrical composition.
+MATERIAL & DETAIL — {MATERIAL} and repeating elements mirror precisely.
+COLOR GRADE — Clean balanced palette, controlled contrast.
+OUTPUT — Photorealistic symmetrical frontal, formal and cinematic. True 4K. Exact symmetry, straight verticals.`},
+  {code:'SC-2', title:'Centered One-Point Cinematic', intent:'Film-still composition with a strong central axis and depth.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Approaches, courtyards, axial architecture.',
+   neg:'off-axis, converging verticals, flat lighting, overexposed surfaces, HDR',
+   prompt:`FRAMING — Centered one-point composition leading into {PROPERTY}; strong central axis with depth; cinematic aspect feel.
+LIGHTING — {TIME} from the {SUNDIR}; directional but balanced; depth cues from light falloff.
+MATERIAL & DETAIL — {MATERIAL} and axial elements articulated toward the vanishing point.
+COLOR GRADE — Cinematic palette, controlled contrast, filmic finish.
+OUTPUT — Photorealistic cinematic one-point frame. True 4K. Strong axis, straight verticals.`},
+  {code:'SC-3', title:'Reflection Symmetry', intent:'Water or polished surface mirrors the building for doubled symmetry.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Properties with pools, ponds, or reflective forecourts.',
+   neg:'unnatural reflection, overexposed water, HDR halos, plastic surface, broken symmetry',
+   prompt:`FRAMING — {PROPERTY} composed above a reflective surface (pool, pond, polished forecourt) that mirrors it for vertical symmetry.
+LIGHTING — {TIME} from the {SUNDIR}; calm light; realistic reflection with subtle surface texture.
+MATERIAL & DETAIL — {MATERIAL} mirrored believably; gentle ripple realism, not glassy-fake.
+COLOR GRADE — Warm balanced palette, rich reflection.
+OUTPUT — Photorealistic reflection-symmetry frame. True 4K. Natural reflection, balanced symmetry.`}
+ ]},
+
+/* ============ 14 · SCALE & HUMAN CONTEXT SHOTS ============ */
+{num:'14', id:'scale', name:'Scale & Human Context Shots', desc:'People and familiar objects that give the architecture a sense of scale and life.',
+ prompts:[
+  {code:'HC-1', title:'Human-for-Scale Foreground', intent:'A figure anchors scale and adds life without dominating.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Any property; grounds the size of large facades.',
+   neg:'distracting crowd, identifiable faces, flat lighting, overexposed surfaces, HDR, unnatural figures',
+   prompt:`FRAMING — {PROPERTY} with a single tasteful figure (or two) in the foreground/mid-ground for scale; figures small, anonymous, naturally posed.
+LIGHTING — {TIME} from the {SUNDIR}; consistent on figures and building.
+MATERIAL & DETAIL — Building {MATERIAL} primary; figures realistic but secondary, no identifiable faces.
+COLOR GRADE — Warm premium palette, subject prioritized.
+OUTPUT — Photorealistic human-scale frame. True 4K. Figures grounded and natural, building dominant.`},
+  {code:'HC-2', title:'Lifestyle Activation', intent:'The property in use — quiet activity that signals desirable living.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Hotels, residences, amenity spaces, resorts.',
+   neg:'staged crowd, identifiable faces, busy clutter, overexposed surfaces, HDR, artificial figures',
+   prompt:`FRAMING — {PROPERTY} exterior with subtle lifestyle activity ({CONTEXT}-appropriate — strolling, lounging, arriving); aspirational but uncluttered.
+LIGHTING — {TIME} from the {SUNDIR}; warm inviting light on architecture and activity.
+MATERIAL & DETAIL — {MATERIAL} and amenity detail crisp; activity natural and restrained, no identifiable faces.
+COLOR GRADE — Warm lifestyle palette, premium finish.
+OUTPUT — Photorealistic lifestyle activation. True 4K. Natural, restrained activity.`},
+  {code:'HC-3', title:'Object Scale Anchor', intent:'A familiar object (vehicle, furniture) calibrates building size.',
+   settings:'Strength 0.40–0.50 · Guidance 8.0', adapt:'Driveways, forecourts, terraces, large facades.',
+   neg:'cluttered objects, overexposed surfaces, flat lighting, HDR, brand logos',
+   prompt:`FRAMING — {PROPERTY} with a single tasteful scale-anchor object (premium vehicle at the entrance, furniture on a terrace) — no visible brand logos.
+LIGHTING — {TIME} from the {SUNDIR}; consistent across object and building.
+MATERIAL & DETAIL — {MATERIAL} primary; object realistic, secondary, clean.
+COLOR GRADE — Warm premium palette, controlled contrast.
+OUTPUT — Photorealistic object-scale frame. True 4K. Object grounded, building dominant, no logos.`}
+ ]},
+
+/* ============ 15 · MARKETING-ORIENTED PROPERTY ANGLES ============ */
+{num:'15', id:'marketing', name:'Marketing-Oriented Property Angles', desc:'Output-format-specific frames built for where the image will actually be published.',
+ prompts:[
+  {code:'MK-1', title:'Brochure Cover Hero', intent:'Cover-grade frame with deliberate negative space for type.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Print and digital covers across all property types.',
+   neg:'busy frame, no copy space, overexposed surfaces, HDR halos, flat lighting, sky replacement',
+   prompt:`FRAMING — {PROPERTY} as a confident hero with intentional negative space (sky or ground) reserved for headline copy. Strong, simple composition.
+LIGHTING — {TIME} from the {SUNDIR}; premium, dimensional, magazine-grade.
+MATERIAL & DETAIL — {MATERIAL} pristine; clean surroundings; impeccable surfaces.
+COLOR GRADE — Refined cinematic palette, controlled contrast.
+OUTPUT — Photorealistic brochure cover hero with copy space. True 4K. No sky replacement.`},
+  {code:'MK-2', title:'Social Vertical Crop', intent:'9:16 vertical built for feeds and stories.',
+   settings:'Strength 0.45–0.55 · Guidance 8.0', adapt:'Instagram/TikTok/Reels; vertical-first delivery.',
+   neg:'horizontal-only composition, cramped subject, overexposed surfaces, HDR, busy edges',
+   prompt:`FRAMING — Vertical 9:16, {PROPERTY} composed for a tall frame; strong subject with breathing room top and bottom for captions/UI.
+LIGHTING — {TIME} from the {SUNDIR}; punchy, premium, thumb-stopping.
+MATERIAL & DETAIL — {MATERIAL} vivid; clean composition that survives a small screen.
+COLOR GRADE — Bold warm palette, high but controlled contrast.
+OUTPUT — Photorealistic vertical social frame. True 4K, 9:16. Subject clear at small size.`},
+  {code:'MK-3', title:'Investment Deck Establishing', intent:'Context-forward frame for decks — location and scale up front.',
+   settings:'Strength 0.55–0.65 · Guidance 7.5', adapt:'Investor and stakeholder presentations.',
+   neg:'subject lost, flat lighting, HDR, overexposed context, artificial atmosphere, sky replacement',
+   prompt:`FRAMING — Wide context frame placing {PROPERTY} within its {CONTEXT}; location, scale and connectivity legible; clean, authoritative composition.
+LIGHTING — {TIME} from the {SUNDIR}; consistent, professional, atmospheric depth.
+MATERIAL & DETAIL — Property identifiable and premium; surroundings supporting the location story.
+COLOR GRADE — Warm authoritative palette, controlled contrast.
+OUTPUT — Photorealistic establishing frame for investment decks. True 4K. Clear context, no sky replacement.`},
+  {code:'MK-4', title:'Master Enhancement Pass', intent:'The universal cleanup-and-relight pass applied to any existing exterior photo.',
+   settings:'Strength 0.40–0.55 · Guidance 7.5–9.0', adapt:'Any raw exterior photo — the standard finishing pass before publication.',
+   neg:'overexposed highlights, color cast, flat overcast light, HDR halos, plastic textures, CGI look, altered structures, oversharpened, added or removed elements',
+   prompt:`1. CLEANUP & DECLUTTER — Remove debris, clutter, excess vehicles, scattered objects; eliminate stains, trash, distracting elements. Make it read organized and premium.
+2. SURFACE & STRUCTURAL PERFECTION — Correct stains, discoloration and wear on {MATERIAL}, roofs, paving and walls; smooth surfaces while keeping realistic texture; tidy patchy greenery.
+3. LIGHTING — {TIME} directional from the {SUNDIR}; balance exposure; defined shadows with accurate direction; preserve highlight detail; enhance light/shade contrast for depth.
+4. MATERIAL & TEXTURE — Enhance {MATERIAL}, roofing, greenery and water; improve clarity; keep realism; subtle realistic reflections.
+5. COLOR GRADE — Neutral-warm high-end palette; balanced whites/roof tones, no color cast; natural greens and earth tones; polished cinematic finish.
+6. SHARPNESS & UPSCALE — Micro-detail sharpening; reduce noise; true 4K; HDR clarity without halos.
+7. OUTPUT — Photorealistic, marketing-grade, no distortion, no added/altered structures.
+8. MICRO-ADJUSTMENT — Straighten lines and alignment where slightly off; keep original camera position and perspective; do NOT reframe, crop, or alter layout; keep results realistic, not artificially perfect.`}
+ ]}
+]);
+
+(function(){
+  const G=window.GUIDE, CATS=window.CATS;
+  const content=document.getElementById('content');
+  const navlist=document.getElementById('navlist');
+  const cnt=document.getElementById('cnt');
+
+  // count prompts
+  let total=0; CATS.forEach(c=>total+=c.prompts.length);
+
+  // hero meta
+  document.getElementById('herometa').innerHTML=[
+    {v:total,l:'Reusable prompts'},
+    {v:CATS.length,l:'Categories'},
+    {v:G.tokens.length,l:'Adaptable tokens'},
+    {v:'Universal',l:'Property scope'}
+  ].map(m=>`<div class="hm"><div class="v">${m.v}</div><div class="l">${m.l}</div></div>`).join('');
+
+  // nav
+  let navHTML=`<a href="#guidelines" data-id="guidelines"><span class="nn">00</span><span>AI Guidelines</span></a>`;
+  navHTML+=CATS.map(c=>`<a href="#${c.id}" data-id="${c.id}"><span class="nn">${c.num}</span><span>${c.name}</span></a>`).join('');
+  navlist.innerHTML=navHTML;
+
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function hi(s){return esc(s).replace(/(\{[A-Z]+\})/g,'<b>$1</b>');}
+
+  // guidelines section
+  let html=`<section class="block" id="guidelines">
+    <div class="shead"><div class="snum">00</div><div class="stitle"><h2>AI Guidelines</h2><div class="sdesc">Creative guidelines for consistent, premium, reusable architectural visuals. Read once; apply to every prompt below.</div></div></div>
+    <div class="srule"></div>
+    <div class="gl">`;
+  G.cards.forEach(c=>{ html+=`<div class="glcard"><h4>${esc(c.h)}</h4>${c.html}</div>`; });
+  // token table card
+  html+=`<div class="glcard"><h4>Token Reference</h4><p>Replace these in every prompt. Examples shown after each token.</p><div class="tokens">`+
+    G.tokens.map(t=>`<span class="tok">${esc(t.t)} <b>— ${esc(t.d)}</b></span>`).join('')+`</div></div>`;
+  html+=`</div></section>`;
+
+  // category sections
+  CATS.forEach(c=>{
+    html+=`<section class="block" id="${c.id}">
+      <div class="shead"><div class="snum">${c.num}</div><div class="stitle"><h2>${esc(c.name)}</h2><div class="sdesc">${esc(c.desc)}</div></div></div>
+      <div class="srule"></div>
+      <div class="prompts">`;
+    c.prompts.forEach(p=>{
+      const sets=p.settings.split('·').map(s=>`<span class="mp">${s.trim().replace(/(Strength|Guidance)/g,'<b>$1</b>')}</span>`).join('');
+      html+=`<div class="pcard" data-search="${esc((p.title+' '+p.intent+' '+p.prompt+' '+c.name+' '+p.settings).toLowerCase())}">
+        <div class="phead" onclick="this.parentNode.classList.toggle('open')">
+          <span class="pcode">${esc(p.code)}</span>
+          <div class="ptitle"><h3>${esc(p.title)}</h3><div class="pint">${esc(p.intent)}</div></div>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="pbody">
+          <div class="pmeta">${sets}<span class="mp adapt"><b>Adapt</b> ${esc(p.adapt)}</span></div>
+          <div class="pbox"><pre>${hi(p.prompt)}</pre></div>
+          <div class="pbtns">
+            <button class="btn primary" data-copy>Copy prompt</button>
+            <button class="btn" data-copyneg>Copy negative</button>
+          </div>
+          <div class="neg"><div class="nl">Negative prompt</div><div class="nt">${esc(p.neg)}</div></div>
+        </div>
+      </div>`;
+    });
+    html+=`</div></section>`;
+  });
+  content.innerHTML=html;
+
+  // copy (store raw text on elements via dataset using a map)
+  const rawMap=new Map();
+  let idx=0;
+  CATS.forEach(c=>c.prompts.forEach(p=>{rawMap.set('p'+idx,p.prompt);rawMap.set('n'+idx,p.neg);idx++;}));
+  // re-walk cards in DOM order to bind
+  const cards=[...content.querySelectorAll('.pcard')];
+  idx=0;
+  CATS.forEach(c=>c.prompts.forEach(p=>{
+    const card=cards[idx];
+    card.querySelector('[data-copy]').addEventListener('click',e=>{e.stopPropagation();copy(p.prompt,e.target,'Copy prompt','Prompt copied');});
+    card.querySelector('[data-copyneg]').addEventListener('click',e=>{e.stopPropagation();copy(p.neg,e.target,'Copy negative','Negative copied');});
+    idx++;
+  }));
+
+  // search
+  const search=document.getElementById('search');
+  function applySearch(){
+    const q=search.value.toLowerCase().trim();
+    let shown=0;
+    content.querySelectorAll('.block').forEach(sec=>{
+      if(sec.id==='guidelines'){sec.style.display=q?'none':'';return;}
+      let any=false;
+      sec.querySelectorAll('.pcard').forEach(card=>{
+        const m=!q||card.dataset.search.includes(q);
+        card.style.display=m?'':'none';
+        if(m){any=true;shown++;}
+      });
+      sec.style.display=(q&&!any)?'none':'';
+    });
+    cnt.textContent=q?`${shown} / ${total}`:`${total} prompts`;
+  }
+  search.addEventListener('input',applySearch);
+  cnt.textContent=`${total} prompts`;
+
+  // toast + copy
+  const toast=document.getElementById('toast');let tT;
+  function copy(text,btn,label,msg){
+    const done=()=>{btn.classList.add('copied');const o=btn.textContent;btn.textContent='Copied \u2713';
+      toast.textContent=msg;toast.classList.add('show');clearTimeout(tT);
+      tT=setTimeout(()=>{toast.classList.remove('show');btn.classList.remove('copied');btn.textContent=label;},1500);};
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(done).catch(()=>fallback(text,done));}
+    else fallback(text,done);
+  }
+  function fallback(text,done){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}ta.remove();done();}
+
+  // scrollspy
+  const navAs=[...navlist.querySelectorAll('a')];
+  const secs=[...content.querySelectorAll('.block')];
+  const spy=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        navAs.forEach(a=>a.classList.toggle('active',a.dataset.id===en.target.id));
+      }
+    });
+  },{rootMargin:'-20% 0px -70% 0px'});
+  secs.forEach(s=>spy.observe(s));
+
+  // mobile nav
+  const side=document.getElementById('side');
+  document.getElementById('navtoggle').addEventListener('click',()=>side.classList.toggle('open'));
+  navlist.addEventListener('click',()=>{if(window.innerWidth<=880)side.classList.remove('open');});
+})();
+
+</script>
+</body>
+</html>
